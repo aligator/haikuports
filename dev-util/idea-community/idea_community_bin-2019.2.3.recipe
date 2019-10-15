@@ -1,0 +1,43 @@
+SUMMARY="Intellij IDEA Community Edition"
+DESCRIPTION="A Java Integrated Development Environment to develop computer \
+software."
+HOMEPAGE="https://www.jetbrains.com/idea/"
+COPYRIGHT="2019 JetBrains s.r.o."
+LICENSE="Apache v2"
+REVISION="1"
+buildVersion="192.6817.14"
+SOURCE_URI="https://download.jetbrains.com/idea/ideaIC-$portVersion-no-jbr.tar.gz#noarchive"
+CHECKSUM_SHA256="9742d4c65b8ce20c31e993f0e04d526b0f368d7703e34ad4d6a01713b886353a"
+ADDITIONAL_FILES="IntelliJ_IDEA_Logo.hvif"
+
+ARCHITECTURES="any"
+DISABLE_SOURCE_PACKAGE="true"
+
+PROVIDES="
+	idea_community_bin = $portVersion
+	"
+REQUIRES="
+	haiku
+	java:environment == 8
+	"
+
+BUILD_PREREQUIRES="
+	"
+
+INSTALL()
+{
+	mkdir -p $appsDir
+	tar xvf ideaIC-$portVersion-no-jbr.tar.gz -C $appsDir
+	mv $appsDir/idea-IC-$buildVersion $appsDir/idea
+
+	cat << EOF > $appsDir/idea/idea.sh
+#!/bin/sh -l
+export PATH=\$JDK8_HOME/bin:\$PATH
+exec $appsDir/idea/bin/idea.sh
+EOF
+	chmod 755 $appsDir/idea/idea.sh
+
+	addattr -t icon -f $portDir/additional-files/IntelliJ_IDEA_Logo.hvif \
+		"BEOS:ICON" "$appsDir/idea/idea.sh"
+	addAppDeskbarSymlink $appsDir/idea/idea.sh 'IDEA Intellij CE'
+}
